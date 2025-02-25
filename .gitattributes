@@ -1,0 +1,5 @@
+# Normalize text files to LF
+* text=auto
+*.sh text eol=lf
+*.json text eol=lf
+*.j2 text eol=lf
