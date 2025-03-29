@@ -1,65 +1,60 @@
 import sqlite3
+# Connect to SQLite database (creates 'stocks.db' if it doesn't exist)
+conn = sqlite3.connect("stocks.db")
 
-# Connect to SQLite database
-conn = sqlite3.connect('stock_data.db')
+# Create a cursor object
 cursor = conn.cursor()
 
-# Create Stocks table
-cursor.execute('''
-    CREATE TABLE IF NOT EXISTS Stocks (
-        stock_id INTEGER PRIMARY KEY AUTOINCREMENT,
-        stock_symbol TEXT UNIQUE NOT NULL,
-        stock_name TEXT NOT NULL
-    )
-''')
+# SQL query to create table
+table_query = """
+CREATE TABLE IF NOT EXISTS stock_data (
+    Date TEXT NOT NULL,
+    Ticker TEXT NOT NULL,
+    Open REAL,
+    High REAL,
+    Low REAL,
+    Close REAL,
+    Volume INTEGER,
+    Marketcap REAL,
+    Sector TEXT
+);
+"""
 
-# Create Prices table
-cursor.execute('''
-    CREATE TABLE IF NOT EXISTS Prices (
-        price_id INTEGER PRIMARY KEY AUTOINCREMENT,
-        stock_id INTEGER,
-        date TEXT NOT NULL,
-        open REAL,
-        high REAL,
-        low REAL,
-        close REAL,
-        volume INTEGER,
-        FOREIGN KEY (stock_id) REFERENCES Stocks (stock_id)
-    )
-''')
+# Execute the query
+cursor.execute(table_query)
 
-# Create Financials table with requested columns
-cursor.execute('''
-    CREATE TABLE IF NOT EXISTS Financials (
-        financial_id INTEGER PRIMARY KEY AUTOINCREMENT,
-        stock_id INTEGER,
-        period TEXT NOT NULL,
-        revenue REAL,
-        net_profits REAL,
-        mutual_funds_holdings REAL,
-        fi_holdings REAL,
-        net_worth REAL,
-        FOREIGN KEY (stock_id) REFERENCES Stocks (stock_id)
-    )
-''')
-
-# Create Indices table for NIFTY/SENSEX trends
-cursor.execute('''
-    CREATE TABLE IF NOT EXISTS Indices (
-        index_id INTEGER PRIMARY KEY AUTOINCREMENT,
-        index_name TEXT NOT NULL,
-        date TEXT NOT NULL,
-        value REAL,
-        UNIQUE (index_name, date)
-    )
-''')
-
-cursor.execute(
-    '''show tables'''
-)
-
-# Commit changes and close connection
+# Commit and close the connection
 conn.commit()
 conn.close()
 
-print("Tables created successfully with all requested columns.")
+print("Stocks Database connected and table created successfully.")
+
+# Connect to SQLite database (creates 'finance_news.db' if not exists)
+conn = sqlite3.connect("finance_news.db")
+cursor = conn.cursor()
+# cursor.execute("Drop table if exists nifty_fifty_news;")
+# print("Dropped table nifty_fifty_news if it existed.")
+# Create table for finance-related news
+cursor.execute('''
+    CREATE TABLE IF NOT EXISTS nifty_fifty_news (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        stock TEXT NOT NULL,
+        sector TEXT NOT NULL,
+        headline TEXT NOT NULL,
+        source TEXT,
+        published_date TEXT,
+        url TEXT UNIQUE,
+        summary TEXT,
+        description TEXT,
+        sentiment_score REAL
+    )
+''')
+
+#cursor.execute("""Select * from preprocessed_stock_data;""")
+# print("data fetched from nifty_fifty_news table:")
+
+# Commit and close connection
+conn.commit()
+conn.close()
+
+print("Table 'nifty_fifty_news' created successfully.")
